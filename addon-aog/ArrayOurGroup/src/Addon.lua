@@ -3,7 +3,8 @@
 --========================================
 local l = {} -- #L private table for local use
 local m = {l=l} -- #M public table for module use
-local NAME = 'ArrayOurAddon'
+local NAME = 'ArrayOurGroup'
+local TITLE = 'Array Our Group'
 local VERSION = '@@ADDON_VERSION@@'
 
 --========================================
@@ -37,6 +38,7 @@ end
 --========================================
 m.name = NAME -- #string
 m.version = VERSION -- #string
+m.title = TITLE --#string
 
 m.addAction -- #(#string:key,#()->():action)->()
 = function(key, action)
