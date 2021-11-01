@@ -12,6 +12,7 @@ src/Addon.lua
 i18n/en.lua
 i18n/$(language).lua
 
+src/AogCanvas.lua
 src/Settings.lua
 
 

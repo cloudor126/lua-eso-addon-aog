@@ -61,7 +61,11 @@ l.onStart -- #()->()
         end,
         width = "full",
         default = true,
-  })
+  },{
+    type = "aogCanvas",
+    name = 'canvas',
+  }
+  )
   addon.callExtension(m.EXTKEY_ADD_MENUS)
   LAM2:RegisterOptionControls('AOGAddonOptions', l.menuOptions)
 end
