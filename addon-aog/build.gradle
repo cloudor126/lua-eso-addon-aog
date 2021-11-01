@@ -1,0 +1,91 @@
+plugins{
+    id 'distribution'
+}
+
+ext.addonName = "ArrayOurGroup"
+ext.addonId = 0 // TODO
+ext.addonCompatible = '7.1.5'
+file('changelog').withReader{reader->
+    def m = reader.readLine() =~ /\d+(\.\w+)+/
+    ext.addonVersion = m? m[0][0] : 'SNAPSHOT'
+}
+
+CopySpec mainContents = copySpec {
+	filteringCharset = 'iso8859-1'
+    from (addonName){
+    	exclude '**/*.dds'
+    	 filter{
+        	it.replaceAll('@@ADDON_VERSION@@',addonVersion)
+    	}
+    }
+   	from (addonName){
+   		include '**/*.dds'
+   	}
+}
+
+distTar.enabled = false
+distributions {
+    main {
+        baseName = addonName
+        contents {
+        	with mainContents
+        }
+    }
+}
+
+distZip{
+    archiveFile.set(file("${distZip.destinationDir}/${addonName}-${addonVersion}.zip"))
+}
+
+if (hasProperty('ESO_PTS_ADDONS_DIR')){
+    def installDir =  new File(project.property( 'ESO_PTS_ADDONS_DIR'),addonName)
+    task installToPTS(type:Sync){
+    	group 'distribution'
+    	description 'Installs the project into PTS dir'
+    	with mainContents
+        into installDir
+    }
+}
+
+if (hasProperty('ESO_LIVE_ADDONS_DIR')){
+    def installDir =  new File(project.property( 'ESO_LIVE_ADDONS_DIR'),addonName)
+    task installToLive(type:Sync){
+    	group 'distribution'
+    	description 'Installs the project into LIVE dir'
+    	with mainContents
+        into installDir
+    }
+}
+
+task upload {
+    group = "distribution"
+    description = "upload addon zip file to esoui.com"
+    dependsOn distZip
+    doLast{
+        def changelog = file('changelog').text.replaceAll('"',/\\"/)
+        def proc = ['curl',
+            '-H', "\"x-api-token: ${project.property('com.esoui.apiToken')}\"",
+            '-F', "id=${addonId}",
+            '-F', "version=$addonVersion",
+            '-F', "compatible=$addonCompatible",
+            '-F', "changelog=$changelog",
+            '-F', "\"updatefile=@${distZip.archiveFile.get().asFile.absolutePath}\"",
+            'https://api.esoui.com/addons/update']
+                   .execute()
+        proc.consumeProcessOutput(System.out, System.err)
+        proc.waitFor()
+    }
+}
+
+task addonInfo{
+    group = "help"
+    description = "show addon info"
+    doLast{
+        def proc = ['curl',
+            '-H', "\"x-api-token: ${project.property('com.esoui.apiToken')}\"",
+            "https://api.esoui.com/addons/details/${addonId}.json"]
+                   .execute()
+        proc.consumeProcessOutput(System.out, System.err)
+        proc.waitFor()
+    }
+}

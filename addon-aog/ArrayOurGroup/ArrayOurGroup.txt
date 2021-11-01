@@ -1,0 +1,17 @@
+## Title: Array Our Group
+## Author: Cloudor
+## Version: @@ADDON_VERSION@@
+## Description: Array our group as preset formations.
+## APIVersion: 100035 101031
+## AddOnVersion: 1
+## DependsOn: LibAddonMenu-2.0
+## SavedVariables: AOPSV
+
+src/Addon.lua
+
+i18n/en.lua
+i18n/$(language).lua
+
+src/Settings.lua
+
+
